@@ -38,14 +38,6 @@ export default {
       default: 'click',
       validator: value => ['click', 'focus', 'hover', 'manual'].indexOf(value) > -1
     },
-    openDelay: {
-      type: Number,
-      default: 0
-    },
-    closeDelay: {
-      type: Number,
-      default: 200
-    },
     title: String,
     disabled: Boolean,
     content: String,
@@ -100,17 +92,12 @@ export default {
   },
 
   beforeDestroy() {
-    this.cleanup();
     this.removeEvents();
-  },
-
-  deactivated() {
-    this.cleanup();
   },
 
   methods: {
     createEvents() {
-      const popper = this.popper || this.$refs.popper;
+      const popper = this.getPopper();
       const reference = this.getReference();
 
       // 可访问性
@@ -170,33 +157,7 @@ export default {
       off(reference, 'mouseenter', this.handleMouseEnter);
       off(document, 'click', this.handleDocumentClick);
     },
-    doToggle() {
-      if (this.showPopper) {
-        this.doClose();
-      } else {
-        this.doShow();
-      }
-    },
-    doShow() {
-      clearTimeout(this._timer);
-      if (this.openDelay) {
-        this._timer = setTimeout(() => {
-          this.showPopper = true;
-        }, this.openDelay);
-      } else {
-        this.showPopper = true;
-      }
-    },
-    doClose() {
-      clearTimeout(this._timer);
-      if (this.closeDelay) {
-        this._timer = setTimeout(() => {
-          this.showPopper = false;
-        }, this.closeDelay);
-      } else {
-        this.showPopper = false;
-      }
-    },
+
     handleFocus() {
       addClass(this.getReference(), 'focusing');
       if (this.trigger === 'click' || this.trigger === 'focus') this.showPopper = true;
@@ -221,7 +182,7 @@ export default {
     },
     handleDocumentClick(e) {
       const reference = this.getReference();
-      const popper = this.popper || this.$refs.popper;
+      const popper = this.getPopper();
 
       if (!this.$el ||
         !reference ||
@@ -238,11 +199,6 @@ export default {
       this.$emit('after-leave');
       this.doDestroy();
     },
-    cleanup() {
-      if (this.openDelay || this.closeDelay) {
-        clearTimeout(this._timer);
-      }
-    }
   },
 };
 </script>
