@@ -33,6 +33,14 @@ export default {
     offset: {
       default: 0
     },
+    openDelay: {
+      type: Number,
+      default: 0
+    },
+    closeDelay: {
+      type: Number,
+      default: 200
+    },
     value: Boolean,
     visibleArrow: Boolean,
     arrowOffset: {
@@ -56,7 +64,8 @@ export default {
   data() {
     return {
       showPopper: false,
-      currentPlacement: ''
+      currentPlacement: '',
+      _timer: null
     };
   },
 
@@ -77,6 +86,38 @@ export default {
   },
 
   methods: {
+    doToggle() {
+      if (this.showPopper) {
+        this.doClose();
+      } else {
+        this.doShow();
+      }
+    },
+    doShow() {
+      clearTimeout(this._timer);
+      if (this.openDelay) {
+        this._timer = setTimeout(() => {
+          this.showPopper = true;
+        }, this.openDelay);
+      } else {
+        this.showPopper = true;
+      }
+    },
+    doClose() {
+      clearTimeout(this._timer);
+      if (this.closeDelay) {
+        this._timer = setTimeout(() => {
+          this.showPopper = false;
+        }, this.closeDelay);
+      } else {
+        this.showPopper = false;
+      }
+    },
+    cleanup() {
+      if (this.openDelay || this.closeDelay) {
+        clearTimeout(this._timer);
+      }
+    }
     // Refs cannot be computed because they are not reactive, hence a method
     getReference() {
       let reference = this.$refs.reference;
@@ -87,6 +128,9 @@ export default {
 
       return reference;
     },
+    getPopper() {
+      return this.popperElm = this.popperElm || this.popper || this.$refs.popper
+    },
     createPopper() {
       if (this.$isServer) return;
       this.currentPlacement = this.currentPlacement || this.placement;
@@ -95,12 +139,12 @@ export default {
       }
 
       const options = this.popperOptions;
-      const popper = this.popperElm = this.popperElm || this.popper || this.$refs.popper;
+      const popper = this.getPopper();
       const reference = this.getReference();
 
       if (!popper || !reference) return;
       if (this.visibleArrow) this.appendArrow(popper);
-      if (this.appendToBody) document.body.appendChild(this.popperElm);
+      if (this.appendToBody) document.body.appendChild(popper);
       if (this.popperJS && this.popperJS.destroy) {
         this.popperJS.destroy();
       }
@@ -118,7 +162,7 @@ export default {
         this.popperJS.onUpdate(options.onUpdate);
       }
       this.popperJS._popper.style.zIndex = PopupManager.nextZIndex();
-      this.popperElm.addEventListener('click', stop);
+      popper.addEventListener('click', stop);
     },
 
     updatePopper() {
@@ -188,15 +232,18 @@ export default {
   },
 
   beforeDestroy() {
+    this.cleanup();
     this.doDestroy(true);
-    if (this.popperElm && this.popperElm.parentNode === document.body) {
-      this.popperElm.removeEventListener('click', stop);
-      document.body.removeChild(this.popperElm);
+    const popper = this.getPopper();
+    if (popper && popper.parentNode === document.body) {
+      popper.removeEventListener('click', stop);
+      document.body.removeChild(popper);
     }
   },
 
   // call destroy in keep-alive mode
   deactivated() {
+    this.cleanup();
     this.$options.beforeDestroy[0].call(this);
   }
 };
