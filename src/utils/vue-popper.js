@@ -77,6 +77,16 @@ export default {
   },
 
   methods: {
+    // Refs cannot be computed because they are not reactive, hence a method
+    getReference() {
+      let reference = this.$refs.reference;
+
+      if (!reference && this.$slots.reference && this.$slots.reference[0]) {
+        reference = this.$slots.reference[0].elm;
+      }
+
+      return reference;
+    },
     createPopper() {
       if (this.$isServer) return;
       this.currentPlacement = this.currentPlacement || this.placement;
@@ -86,13 +96,7 @@ export default {
 
       const options = this.popperOptions;
       const popper = this.popperElm = this.popperElm || this.popper || this.$refs.popper;
-      let reference = this.referenceElm = this.referenceElm || this.reference || this.$refs.reference;
-
-      if (!reference &&
-        this.$slots.reference &&
-        this.$slots.reference[0]) {
-        reference = this.referenceElm = this.$slots.reference[0].elm;
-      }
+      const reference = this.getReference();
 
       if (!popper || !reference) return;
       if (this.visibleArrow) this.appendArrow(popper);
