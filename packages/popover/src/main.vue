@@ -5,8 +5,7 @@
       @after-enter="handleAfterEnter"
       @after-leave="handleAfterLeave">
       <div
-        class="el-popover el-popper"
-        :class="[popperClass, content && 'el-popover--plain']"
+        :class="["el-popover", "el-popper", class, content && 'el-popover--plain']"
         ref="popper"
         v-show="!disabled && showPopper"
         :style="{ width: width + 'px' }"
@@ -50,7 +49,7 @@ export default {
     disabled: Boolean,
     content: String,
     reference: {},
-    popperClass: String,
+    class: String,
     width: {},
     visibleArrow: {
       default: true
