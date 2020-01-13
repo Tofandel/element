@@ -96,7 +96,7 @@
       <template slot="prefix" v-if="$slots.prefix">
         <slot name="prefix"></slot>
       </template>
-      <template slot="suffix">
+      <template slot="suffix" v-if="!readonly">
         <i v-show="!showClose" :class="['el-select__caret', 'el-input__icon', 'el-icon-' + iconClass]"></i>
         <i v-if="showClose" class="el-select__caret el-input__icon el-icon-circle-close" @click="handleClearClick"></i>
       </template>
