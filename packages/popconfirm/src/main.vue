@@ -12,19 +12,19 @@
       class="el-popconfirm__icon"
       :style="{color: iconColor}"
     ></i>
-      {{title}}
+      <slot>{{title}}</slot>
     </p>
     <div class="el-popconfirm__action">
-      <el-button 
-        size="mini" 
-        :type="cancelButtonType" 
+      <el-button
+        size="mini"
+        :type="cancelButtonType"
         @click="cancel"
       >
         {{cancelButtonText}}
       </el-button>
-      <el-button 
-        size="mini" 
-        :type="confirmButtonType" 
+      <el-button
+        size="mini"
+        :type="confirmButtonType"
         @click="confirm"
       >
         {{confirmButtonText}}
